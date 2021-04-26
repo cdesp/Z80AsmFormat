@@ -1,12 +1,13 @@
-# Assembly Formatter
+# Z80 Assembly Formatter
 
-Assembly Formatter will format your .z80 or .S files!\
-just right click on a .asm file and select `Format Asm`.\
-or press `ctrl-shift-p` then type `Format Asm` and press Enter
+Z80 Assembly Formatter will format your .z80 or .s files!\
+just right click on a  file and select `Format Assembly`.\
+or press `ctrl-shift-p` then type `Format Assembly` and press Enter
 
-![Assembly Formatter at use](https://i.imgur.com/INc2uh3.png)
+Two tabs available for labels, next opcodes and then comments.
 
-This is extension is a vscode port of https://www.lartu.net/projects/asmformat/.\
+This is a clone of asm formater, with some modifications,  from NotAFlyingGoose all credits there for the
+vscode port of https://www.lartu.net/projects/asmformat/.\
 full credits go to the nice people over there
 
-This is a clone of asm formater from NotAFlyingGoose all credits there.
+
