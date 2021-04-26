@@ -3,7 +3,7 @@
 	"publisher": "cdesp",
 	"displayName": "z80asmformat",
 	"description": "Formats z80 assembly code",
-	"version": "0.0.4",
+	"version": "0.0.6",
 	"engines": {
 		"vscode": "^1.55.0"
 	},

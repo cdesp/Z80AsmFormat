@@ -72,9 +72,12 @@ String.prototype.replaceAt = function (index, replacement) {
 }
 
 function isLabel(linea) {
+	var instr = false;
 	for (var j = 0; j < linea.length; ++j) {
+		if (linea[j] == '"') instr = !instr;
+		if (instr) continue;
 		if (linea[j] == ';') return false;
-		if (linea[j] == ':') return true;
+		if (linea[j] == ':' && linea[j + 1] != "'") return true;
 	}
 	return false;
 }
@@ -98,6 +101,18 @@ function getPos(line, match) {
 	return -1;
 }
 
+function z80cmdsnotreplace(teststr) { //check for commands not to be replaced
+	var cmds = ["DB ", "db ", "DEFB ", "defb "];
+
+
+	for (var i = 0; i < cmds.length; i++) {
+		if (teststr.indexOf(cmds[i]) > -1) {
+			return true;
+		}
+	}
+	return false;
+}
+
 function format(text) {
 	var code = text.trim();
 	var lines = code.split("\n");
@@ -106,24 +121,43 @@ function format(text) {
 	for (var i = 0; i < lines.length; ++i) {
 		lines[i] = lines[i].trim();
 		var posComment = getPos(lines[i], ';');
+		if (lines[i].indexOf(";") > -1 && posComment == -1) continue;
 		var posString = getPos(lines[i], '"');
 		var comnt = ""; var lnstr = "";
-		if (posString < posComment) { //do not replace in comments
+		if (posComment > 0) {//do not replace in comments
+			if (posString > 0 && posString < posComment) { //do not replace in comments
+				var tmps1 = lines[i].substr(0, posString);
+				var tmps2 = lines[i].substr(posString, 100);
+				var secstr = getPos(tmps2, '"');
+				var comstr = getPos(tmps2, ';');
+				if (secstr > 0 && secstr < comstr) { //comma not in text
+					comnt = lines[i].substr(posComment, 100);
+					lines[i] = lines[i].substr(0, posComment - 1);
+				}
+			} else {
+				comnt = lines[i].substr(posComment, 100);
+				lines[i] = lines[i].substr(0, posComment - 1);
+			}
+		}
+
+		if (posString > 0 && posString < posComment) { //do not replace in comments
 			comnt = lines[i].substr(posComment, 100);
-			lines[i] = lines[i].substr(1, posComment - 1);
+			lines[i] = lines[i].substr(0, posComment - 1);
 		}
 		posString = getPos(lines[i], '"');
 		if (posString > 0 && lines[i][posString - 1] != "'") { //do not replace inside strings
-			lnstr = lines[i].substr(posString, 100);
-			lines[i] = lines[i].substr(1, posString - 1);
+			lnstr = ' ' + lines[i].substr(posString, 100);
+			lines[i] = lines[i].substr(0, posString - 1);
 		}
-		lines[i] = lines[i].replace(/(\s*),(\s*)/g, ", ");
-		lines[i] = lines[i].replace(/(\s*)\t(\s*)/g, ' ');
-		lines[i] = lines[i].replace(/(\s*)\+(\s*)/g, ' + ');
-		lines[i] = lines[i].replace(/(\s*)\-(\s*)/g, ' - ');
-		lines[i] = lines[i].replace(/(\s*)\*(\s*)/g, ' * ');
-		lines[i] = lines[i].replace(/(\s*)\/(\s*)/g, ' / ');
-		lines[i] = lines[i].replace(/ +(?= )/g, '');
+		if (!z80cmdsnotreplace(lines[i])) {
+			lines[i] = lines[i].replace(/(\s*),(\s*)/g, ", ");
+			lines[i] = lines[i].replace(/(\s*)\+(\s*)/g, ' + ');
+			lines[i] = lines[i].replace(/(\s*)\-(\s*)/g, ' - ');
+			lines[i] = lines[i].replace(/(\s*)\*(\s*)/g, ' * ');
+			lines[i] = lines[i].replace(/(\s*)\/(\s*)/g, ' / ');
+			lines[i] = lines[i].replace(/ +(?= )/g, '');
+		}
+		lines[i] = lines[i].replace(/(\s*)\t(\s*)/g, ' ');  //remove tabs always
 		lines[i] = lines[i] + lnstr + comnt;
 		var islbl = isLabel(lines[i]);
 		var tabspces = 0;
@@ -134,7 +168,7 @@ function format(text) {
 		}
 		else {
 			lblend = lines[i].indexOf(":");
-			if (lines[i][lblend + 1] = ' ') {
+			if (lines[i][lblend + 1] == ' ') {
 				lines[i] = lines[i].replaceAt(lblend + 1, "");
 			}
 			if (lblend < tabsize - 1) {
@@ -151,6 +185,7 @@ function format(text) {
 			var spaces = ""
 			if (islbl) {
 				spaces = "";
+				lblend++;
 			}
 			var cpos = Math.floor((posComment - tabspces - lblend) / tabsize);
 			var needtabs = tabsize - cpos;
