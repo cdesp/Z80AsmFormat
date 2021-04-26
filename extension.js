@@ -48,7 +48,7 @@ function updateAsm() {
 	if (activeTextEditor) {
 		var fileExt = activeTextEditor.document.fileName.split(".").pop();
 		console.log(fileExt);
-		if ((fileExt === "z80") || (fileExt === "s")) {
+		if ((fileExt === "z80") || (fileExt === "s") || (fileExt === "Z80") || (fileExt === "S")) {
 			const { document } = activeTextEditor;
 
 			const content = format(document.getText());
