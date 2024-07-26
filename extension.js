@@ -14,23 +14,25 @@ function activate(context) {
 	// Use the console to output diagnostic information (console.log) and errors (console.error)
 	// This line of code will only be executed once when your extension is activated
 	console.log('Congratulations, your extension "z80asmformat" is now active!');
-
+	
 	// The command has been defined in the package.json file
 	// Now provide the implementation of the command with  registerCommand
 	// The commandId parameter must match the command field in package.json
 	let disposable = vscode.commands.registerCommand('z80asmformat.format', function () {
 		const editor = vscode.window.activeTextEditor;
+		//vscode.window.showInformationMessage('z80asmformat menu triggered!');
 		if (editor)
 			tabsize = editor.options.tabSize;
 		if (updateAsm()) {
 			vscode.window.showInformationMessage('The assembly code has been formated');
 		} else {
-			vscode.window.showErrorMessage("You can only format .z80 or .s files");
+			vscode.window.showErrorMessage("You cannot format this filetype. Add the extension to the extensions on config.");
 		}
 	});
 
 
 	context.subscriptions.push(disposable);
+
 }
 
 // this method is called when your extension is deactivated
@@ -46,9 +48,18 @@ function updateAsm() {
 	const { activeTextEditor } = vscode.window;
 
 	if (activeTextEditor) {
-		var fileExt = activeTextEditor.document.fileName.split(".").pop();
-		console.log(fileExt);
-		if ((fileExt === "z80") || (fileExt === "s") || (fileExt === "Z80") || (fileExt === "S")) {
+
+		const fileExt = activeTextEditor.document.fileName.split(".").pop().toLowerCase();
+		const customExtensionsString = vscode.workspace.getConfiguration('Z80AsmFormat').get('extensions', '');
+		
+		// Parse the extensions from configuration
+		const customExtensions = customExtensionsString.split(',').map(ext => ext.trim().toLowerCase());
+	
+		console.log(`File Extension: ${fileExt}`);
+		console.log(`Custom Extensions: ${customExtensions}`);
+	
+		if (customExtensions.includes(fileExt)) {
+				
 			const { document } = activeTextEditor;
 
 			const content = format(document.getText());

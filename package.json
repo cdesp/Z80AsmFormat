@@ -3,7 +3,7 @@
 	"publisher": "cdesp",
 	"displayName": "z80asmformat",
 	"description": "Formats z80 assembly code",
-	"version": "0.0.7",
+	"version": "0.0.8",
 	"engines": {
 		"vscode": "^1.55.0"
 	},
@@ -15,6 +15,16 @@
 	],
 	"main": "./extension.js",
 	"contributes": {
+		"configuration": {
+			"title": "Z80AsmFormat",
+			"properties": {
+				"Z80AsmFormat.extensions": {
+					"type": "string",
+					"default": "s,z80",
+					"description": "You can specify other extensions like 'asm' default is s,z80"
+				}
+			}
+		},
 		"commands": [
 			{
 				"command": "z80asmformat.format",
@@ -24,7 +34,6 @@
 		"menus": {
 			"editor/context": [
 				{
-					"when": "resourceExtname == .z80 || resourceExtname == .s || resourceExtname == .Z80 || resourceExtname == .S",
 					"command": "z80asmformat.format",
 					"group": "navigation"
 				}
@@ -37,13 +46,13 @@
 		"test": "node ./test/runTest.js"
 	},
 	"devDependencies": {
-		"@types/vscode": "^1.55.0",
 		"@types/glob": "^7.1.3",
 		"@types/mocha": "^8.0.4",
-		"@types/node": "^12.11.7",
-		"eslint": "^7.19.0",
-		"glob": "^7.1.6",
-		"mocha": "^8.2.1",
+		"@types/node": "^12.20.55",
+		"@types/vscode": "^1.55.0",
+		"eslint": "^9.7.0",
+		"glob": "^11.0.0",
+		"mocha": "^10.7.0",
 		"typescript": "^4.1.3",
 		"vscode-test": "^1.5.0"
 	},
@@ -54,5 +63,11 @@
 		"type": "git",
 		"url": "https://github.com/cdesp/z80AsmFormat.git"
 	},
-	"homepage": "https://github.com/cdesp/Z80AsmFormat/blob/master/README.md"
+	"homepage": "https://github.com/cdesp/Z80AsmFormat/blob/master/README.md",
+	"dependencies": {
+		"-": "0.0.1",
+		"g": "^2.0.1",
+		"minimatch": "^10.0.1",
+		"vsce": "^2.15.0"
+	}
 }
